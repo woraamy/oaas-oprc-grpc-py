@@ -1,3 +1,4 @@
+import asyncio
 import grpc
 from concurrent import futures
 import time
@@ -7,6 +8,8 @@ import string
 import os
 import gen_grpc.oprc_offload_pb2 as oprc_offload_pb2
 import gen_grpc.oprc_offload_pb2_grpc as oprc_offload_pb2_grpc
+import oaas_sdk_py as oaas
+from oaas_sdk_py import OaasInvocationCtx
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(LOG_LEVEL)
@@ -16,16 +19,17 @@ def generate_text(num):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(num))
 
-class RandomHandler:
-    async def handle(self, task):
-        entries = int(task.args.get('ENTRIES', '10'))
-        keys = int(task.args.get('KEYS', '10'))
-        values = int(task.args.get('VALUES', '10'))
-        max_keys = int(task.args.get('MAX', '10000'))
-        inplace = task.args.get('INPLACE', 'true').lower() == 'true'
-        req_ts = int(task.args.get('reqts', '0'))
+class RandomHandler(oaas.Handler):
+    async def handle(self, ctx: OaasInvocationCtx):
 
-        record = {}  # Placeholder for the actual data handling
+        entries = int(ctx.args.get('ENTRIES', '10'))
+        keys = int(ctx.args.get('KEYS', '10'))
+        values = int(ctx.args.get('VALUES', '10'))
+        max_keys = int(ctx.args.get('MAX', '10000'))
+        inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
+        req_ts = int(ctx.args.get('reqts', '0'))
+
+        record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
 
         for _ in range(entries):
             record[generate_text(keys)] = generate_text(values)
@@ -38,28 +42,27 @@ class RandomHandler:
         record['ts'] = round(time.time() * 1000)
         if req_ts > 0:
             record['reqts'] = req_ts
+        if inplace:
+            ctx.task.main_obj.data = record
+        if ctx.task.output_obj is not None:
+            ctx.task.output_obj.data = record
 
-        # Update the task's main object data or output object data
-        task.main.data = record if inplace else None
-        task.output.data = record if not inplace else None
 
-        return record
+class MergeHandler(oaas.Handler):
+    async def handle(self, ctx: OaasInvocationCtx):
+        inplace = ctx.args.get('INPLACE', 'false').lower() == 'true'
+        record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
 
-class MergeHandler:
-    async def handle(self, task):
-        inplace = task.args.get('INPLACE', 'false').lower() == 'true'
-        record = {}  # Placeholder for the actual data handling
+        for input_obj in ctx.task.inputs:
+            other_record = input_obj.data.copy() if input_obj.data is not None else {}
+            record = record | other_record
 
-        for input_obj in task.inputs:
-            other_record = {}  # Placeholder for actual input object data handling
-            record.update(other_record)
+        if inplace:
+            ctx.task.main_obj.data = record
+        if ctx.task.output_obj is not None:
+            ctx.task.output_obj.data = record
 
-        task.main.data = record if inplace else None
-        task.output.data = record if not inplace else None
-
-        return record
-
-class OTaskExecutorServicer(oprc__offload_pb2_grpc.OTaskExecutorServicer):
+class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
     def __init__(self):
         self.random_handler = RandomHandler()
         self.merge_handler = MergeHandler()
@@ -74,11 +77,11 @@ class OTaskExecutorServicer(oprc__offload_pb2_grpc.OTaskExecutorServicer):
             context.set_details('Handler not found')
             return oprc_offload_pb2.ProtoOTaskCompletion(id=request.id, success=False)
 
-        return oprc_pb2.ProtoOTaskCompletion(
+        return oprc_offload_pb2.ProtoOTaskCompletion(
             id=request.id,
             success=True,
-            main=oprc_pb2.ProtoObjectUpdate(data=result),
-            output=oprc_pb2.ProtoObjectUpdate(data=result)
+            main=oprc_offload_pb2.ProtoObjectUpdate(data=result),
+            output=oprc_offload_pb2.ProtoObjectUpdate(data=result)
         )
 
     def Invoke(self, request, context):
