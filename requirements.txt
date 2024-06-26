@@ -1,1 +1,3 @@
 oaas-sdk-py 
+grpcio
+grpcio-tools

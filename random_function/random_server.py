@@ -6,10 +6,9 @@ import logging
 import random
 import string
 import os
-import gen_grpc.oprc_offload_pb2 as oprc_offload_pb2
-import gen_grpc.oprc_offload_pb2_grpc as oprc_offload_pb2_grpc
 import oaas_sdk_py as oaas
 from oaas_sdk_py import OaasInvocationCtx
+from gen_grpc import oprc_offload_pb2, oprc_offload_pb2_grpc
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(LOG_LEVEL)

@@ -131,6 +131,11 @@ myenv/
 myenv.bak/
 .conda/
 myenv.bin/
+myenv.egg-info/
+mynewenv/
+mynewenv.bak/
+mynewenv.egg-info/
+mynewenv.lib/
 # Spyder project settings
 .spyderproject
 .spyproject
