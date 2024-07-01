@@ -44,5 +44,5 @@ message ProtoObjectUpdate {
 }
 
 service OTaskExecutor {
-  rpc invoke(ProtoOTask)  returns (ProtoOTaskCompletion) {};
+  rpc invoke(ProtoOTask)  returns (ProtoOTaskCompletion) {}; // rpc methods
 }
