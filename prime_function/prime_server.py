@@ -34,22 +34,23 @@ def next_prime(p):
         next_candidate += 1
     return next_candidate
 
-class PrimeHandler:
-    # User's handler to generate prime numbers
-    async def handle(self, ctx):
-        prev_prime = int(ctx.main_data)
-        prime = next_prime(prev_prime)
-        ctx.main_data = prime
-        ctx.output_data = prime
-
 class GrpcCtx:
-    main_data = None
-    output_data = None
+    main_data = 5
+    output_data = main_data
 
     def __init__(self, request):
         self.task = request
         self.args = request.args
-        self.main_data = request.main_data
+        self.main_data = request.main.data
+        self.output_data = request.output.data
+
+class PrimeHandler:
+    # User's handler to generate prime numbers
+    async def handle(self, ctx:GrpcCtx):
+        prev_prime = json.loads(ctx.main_data).encode('utf-8')
+        prime = next_prime(prev_prime)
+        ctx.main_data = prime
+        ctx.output_data = prime
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
     def __init__(self, handler: PrimeHandler):
