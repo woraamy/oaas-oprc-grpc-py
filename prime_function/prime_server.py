@@ -9,35 +9,38 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
-def is_prime(num):
-    if num <= 1:
+def is_prime(n):
+    # Check if a number is prime
+    if n <= 1:
         return False
-    if num <= 3:
+    if n <= 3:
         return True
-    if num % 2 == 0 or num % 3 == 0:
+    if n % 2 == 0 or n % 3 == 0:
         return False
     i = 5
-    while (i * i) <= num:
-        if num % i == 0 or num % (i + 2) == 0:
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
             return False
         i += 6
     return True
 
-def generate_primes(n):
-    primes = []
-    num = 2
-    while len(primes) < n:
-        if is_prime(num):
-            primes.append(num)
-        num += 1
-    return primes
+def next_prime(p):
+    # Return the next prime number after the given prime p
+    if not is_prime(p):
+        raise ValueError(f"The input is not a prime number")
+    
+    next_candidate = p + 1
+    while not is_prime(next_candidate):
+        next_candidate += 1
+    return next_candidate
 
 class PrimeHandler:
+    # User's handler to generate prime numbers
     async def handle(self, ctx):
-        count = int(ctx.args.get('COUNT', '10'))
-        primes = generate_primes(count)
-        ctx.main_data = primes
-        ctx.output_data = primes
+        prev_prime = int(ctx.main_data)
+        prime = next_prime(prev_prime)
+        ctx.main_data = prime
+        ctx.output_data = prime
 
 class GrpcCtx:
     main_data = None
@@ -46,10 +49,11 @@ class GrpcCtx:
     def __init__(self, request):
         self.task = request
         self.args = request.args
+        self.main_data = request.main_data
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
-    def __init__(self):
-        self.prime_handler = PrimeHandler()
+    def __init__(self, handler: PrimeHandler):
+        self.prime_handler = handler
 
     async def invoke(self, request, context):
         print("Received request")
@@ -76,7 +80,8 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
 
 async def serve():
     server = grpc.aio.server()
-    oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(OTaskExecutorServicer(), server)
+    prime_handler = PrimeHandler()
+    oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(OTaskExecutorServicer(handler=prime_handler), server)
     listen_addr = "[::]:50051"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
