@@ -30,7 +30,7 @@ if _version_not_supported:
     )
 
 
-class OTaskExecutorStub(object):
+class FunctionExecutorStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -40,13 +40,13 @@ class OTaskExecutorStub(object):
             channel: A grpc.Channel.
         """
         self.invoke = channel.unary_unary(
-                '/oprc.OTaskExecutor/invoke',
+                '/oprc.FunctionExecutor/invoke',
                 request_serializer=oprc__offload__pb2.ProtoOTask.SerializeToString,
                 response_deserializer=oprc__offload__pb2.ProtoOTaskCompletion.FromString,
                 _registered_method=True)
 
 
-class OTaskExecutorServicer(object):
+class FunctionExecutorServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def invoke(self, request, context):
@@ -56,7 +56,7 @@ class OTaskExecutorServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_OTaskExecutorServicer_to_server(servicer, server):
+def add_FunctionExecutorServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'invoke': grpc.unary_unary_rpc_method_handler(
                     servicer.invoke,
@@ -65,13 +65,13 @@ def add_OTaskExecutorServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'oprc.OTaskExecutor', rpc_method_handlers)
+            'oprc.FunctionExecutor', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('oprc.OTaskExecutor', rpc_method_handlers)
+    server.add_registered_method_handlers('oprc.FunctionExecutor', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class OTaskExecutor(object):
+class FunctionExecutor(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -88,7 +88,7 @@ class OTaskExecutor(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/oprc.OTaskExecutor/invoke',
+            '/oprc.FunctionExecutor/invoke',
             oprc__offload__pb2.ProtoOTask.SerializeToString,
             oprc__offload__pb2.ProtoOTaskCompletion.FromString,
             options,

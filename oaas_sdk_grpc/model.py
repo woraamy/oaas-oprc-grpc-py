@@ -18,12 +18,13 @@ class GrpcCtx:
             self.main_data = json.loads(request.main.data)
 
 
-class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
+class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):
     def __init__(self, handler):
         self.handler = handler
 
     async def invoke(self, request, context):
         print("Received request")
+        print(request)
         ctx = GrpcCtx(request)
         if request.funcKey is not None:
             await self.handler.handle(ctx)

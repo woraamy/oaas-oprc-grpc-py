@@ -8,8 +8,15 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ProtoOTask(_message.Message):
-    __slots__ = ("id", "partKey", "main", "output", "funcKey", "allocMainUrl", "allocOutputUrl", "mainKeys", "outputKeys", "inputContextKeys", "args", "reqBody", "fbName", "immutable", "ts")
-    class MainKeysEntry(_message.Message):
+    __slots__ = ("id", "partKey", "main", "output", "funcKey", "allocMainUrl", "allocOutputUrl", "mainGetKeys", "mainPutKeys", "outputKeys", "args", "reqBody", "fbName", "immutable", "ts")
+    class MainGetKeysEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    class MainPutKeysEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
@@ -37,9 +44,9 @@ class ProtoOTask(_message.Message):
     FUNCKEY_FIELD_NUMBER: _ClassVar[int]
     ALLOCMAINURL_FIELD_NUMBER: _ClassVar[int]
     ALLOCOUTPUTURL_FIELD_NUMBER: _ClassVar[int]
-    MAINKEYS_FIELD_NUMBER: _ClassVar[int]
+    MAINGETKEYS_FIELD_NUMBER: _ClassVar[int]
+    MAINPUTKEYS_FIELD_NUMBER: _ClassVar[int]
     OUTPUTKEYS_FIELD_NUMBER: _ClassVar[int]
-    INPUTCONTEXTKEYS_FIELD_NUMBER: _ClassVar[int]
     ARGS_FIELD_NUMBER: _ClassVar[int]
     REQBODY_FIELD_NUMBER: _ClassVar[int]
     FBNAME_FIELD_NUMBER: _ClassVar[int]
@@ -47,20 +54,20 @@ class ProtoOTask(_message.Message):
     TS_FIELD_NUMBER: _ClassVar[int]
     id: str
     partKey: str
-    main: _oprc_object_pb2.ProtoOObject
-    output: _oprc_object_pb2.ProtoOObject
+    main: _oprc_object_pb2.ProtoPOObject
+    output: _oprc_object_pb2.ProtoPOObject
     funcKey: str
     allocMainUrl: str
     allocOutputUrl: str
-    mainKeys: _containers.ScalarMap[str, str]
+    mainGetKeys: _containers.ScalarMap[str, str]
+    mainPutKeys: _containers.ScalarMap[str, str]
     outputKeys: _containers.ScalarMap[str, str]
-    inputContextKeys: _containers.RepeatedScalarFieldContainer[str]
     args: _containers.ScalarMap[str, str]
     reqBody: bytes
     fbName: str
     immutable: bool
     ts: int
-    def __init__(self, id: _Optional[str] = ..., partKey: _Optional[str] = ..., main: _Optional[_Union[_oprc_object_pb2.ProtoOObject, _Mapping]] = ..., output: _Optional[_Union[_oprc_object_pb2.ProtoOObject, _Mapping]] = ..., funcKey: _Optional[str] = ..., allocMainUrl: _Optional[str] = ..., allocOutputUrl: _Optional[str] = ..., mainKeys: _Optional[_Mapping[str, str]] = ..., outputKeys: _Optional[_Mapping[str, str]] = ..., inputContextKeys: _Optional[_Iterable[str]] = ..., args: _Optional[_Mapping[str, str]] = ..., reqBody: _Optional[bytes] = ..., fbName: _Optional[str] = ..., immutable: bool = ..., ts: _Optional[int] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., partKey: _Optional[str] = ..., main: _Optional[_Union[_oprc_object_pb2.ProtoPOObject, _Mapping]] = ..., output: _Optional[_Union[_oprc_object_pb2.ProtoPOObject, _Mapping]] = ..., funcKey: _Optional[str] = ..., allocMainUrl: _Optional[str] = ..., allocOutputUrl: _Optional[str] = ..., mainGetKeys: _Optional[_Mapping[str, str]] = ..., mainPutKeys: _Optional[_Mapping[str, str]] = ..., outputKeys: _Optional[_Mapping[str, str]] = ..., args: _Optional[_Mapping[str, str]] = ..., reqBody: _Optional[bytes] = ..., fbName: _Optional[str] = ..., immutable: bool = ..., ts: _Optional[int] = ...) -> None: ...
 
 class ProtoOTaskCompletion(_message.Message):
     __slots__ = ("id", "success", "errorMsg", "ext", "main", "output", "body", "invokes")

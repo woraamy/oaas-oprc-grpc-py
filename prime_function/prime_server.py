@@ -57,7 +57,7 @@ async def serve():
     prime_handler = PrimeHandler()
     otask_servicer = OTaskExecutorServicer(prime_handler)
 
-    oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(otask_servicer, server)
+    oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(otask_servicer, server)
     listen_addr = "[::]:50052"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
@@ -66,5 +66,5 @@ async def serve():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     asyncio.run(serve())

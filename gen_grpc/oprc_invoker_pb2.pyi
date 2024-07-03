@@ -25,7 +25,7 @@ PROTO_INVOCATION_STATUS_DEPENDENCY_FAILED: ProtoInvocationStatus
 PROTO_INVOCATION_STATUS_READY: ProtoInvocationStatus
 
 class ProtoInvocationRequest(_message.Message):
-    __slots__ = ("invId", "main", "cls", "fb", "args", "inputs", "immutable", "inputObjects", "outId", "body", "chains")
+    __slots__ = ("invId", "main", "cls", "fb", "args", "immutable", "outId", "body", "chains")
     class ArgsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -38,9 +38,7 @@ class ProtoInvocationRequest(_message.Message):
     CLS_FIELD_NUMBER: _ClassVar[int]
     FB_FIELD_NUMBER: _ClassVar[int]
     ARGS_FIELD_NUMBER: _ClassVar[int]
-    INPUTS_FIELD_NUMBER: _ClassVar[int]
     IMMUTABLE_FIELD_NUMBER: _ClassVar[int]
-    INPUTOBJECTS_FIELD_NUMBER: _ClassVar[int]
     OUTID_FIELD_NUMBER: _ClassVar[int]
     BODY_FIELD_NUMBER: _ClassVar[int]
     CHAINS_FIELD_NUMBER: _ClassVar[int]
@@ -49,16 +47,14 @@ class ProtoInvocationRequest(_message.Message):
     cls: str
     fb: str
     args: _containers.ScalarMap[str, str]
-    inputs: _containers.RepeatedScalarFieldContainer[str]
     immutable: bool
-    inputObjects: _containers.RepeatedCompositeFieldContainer[_oprc_object_pb2.ProtoOObject]
     outId: str
     body: bytes
     chains: _containers.RepeatedCompositeFieldContainer[ProtoInvocationChain]
-    def __init__(self, invId: _Optional[str] = ..., main: _Optional[str] = ..., cls: _Optional[str] = ..., fb: _Optional[str] = ..., args: _Optional[_Mapping[str, str]] = ..., inputs: _Optional[_Iterable[str]] = ..., immutable: bool = ..., inputObjects: _Optional[_Iterable[_Union[_oprc_object_pb2.ProtoOObject, _Mapping]]] = ..., outId: _Optional[str] = ..., body: _Optional[bytes] = ..., chains: _Optional[_Iterable[_Union[ProtoInvocationChain, _Mapping]]] = ...) -> None: ...
+    def __init__(self, invId: _Optional[str] = ..., main: _Optional[str] = ..., cls: _Optional[str] = ..., fb: _Optional[str] = ..., args: _Optional[_Mapping[str, str]] = ..., immutable: bool = ..., outId: _Optional[str] = ..., body: _Optional[bytes] = ..., chains: _Optional[_Iterable[_Union[ProtoInvocationChain, _Mapping]]] = ...) -> None: ...
 
 class ProtoInvocationChain(_message.Message):
-    __slots__ = ("invId", "main", "cls", "fb", "inputs", "args", "outId", "body", "chains")
+    __slots__ = ("invId", "main", "cls", "fb", "args", "outId", "body", "immutable", "chains")
     class ArgsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -70,24 +66,24 @@ class ProtoInvocationChain(_message.Message):
     MAIN_FIELD_NUMBER: _ClassVar[int]
     CLS_FIELD_NUMBER: _ClassVar[int]
     FB_FIELD_NUMBER: _ClassVar[int]
-    INPUTS_FIELD_NUMBER: _ClassVar[int]
     ARGS_FIELD_NUMBER: _ClassVar[int]
     OUTID_FIELD_NUMBER: _ClassVar[int]
     BODY_FIELD_NUMBER: _ClassVar[int]
+    IMMUTABLE_FIELD_NUMBER: _ClassVar[int]
     CHAINS_FIELD_NUMBER: _ClassVar[int]
     invId: str
     main: str
     cls: str
     fb: str
-    inputs: _containers.RepeatedScalarFieldContainer[str]
     args: _containers.ScalarMap[str, str]
     outId: str
     body: bytes
+    immutable: bool
     chains: _containers.RepeatedCompositeFieldContainer[ProtoInvocationChain]
-    def __init__(self, invId: _Optional[str] = ..., main: _Optional[str] = ..., cls: _Optional[str] = ..., fb: _Optional[str] = ..., inputs: _Optional[_Iterable[str]] = ..., args: _Optional[_Mapping[str, str]] = ..., outId: _Optional[str] = ..., body: _Optional[bytes] = ..., chains: _Optional[_Iterable[_Union[ProtoInvocationChain, _Mapping]]] = ...) -> None: ...
+    def __init__(self, invId: _Optional[str] = ..., main: _Optional[str] = ..., cls: _Optional[str] = ..., fb: _Optional[str] = ..., args: _Optional[_Mapping[str, str]] = ..., outId: _Optional[str] = ..., body: _Optional[bytes] = ..., immutable: bool = ..., chains: _Optional[_Iterable[_Union[ProtoInvocationChain, _Mapping]]] = ...) -> None: ...
 
 class ProtoInvocationResponse(_message.Message):
-    __slots__ = ("main", "output", "invId", "fb", "macroIds", "status", "stats", "body")
+    __slots__ = ("main", "output", "invId", "fb", "macroIds", "status", "stats", "body", "macroInvIds")
     class MacroIdsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -104,6 +100,7 @@ class ProtoInvocationResponse(_message.Message):
     STATS_FIELD_NUMBER: _ClassVar[int]
     ASYNC_FIELD_NUMBER: _ClassVar[int]
     BODY_FIELD_NUMBER: _ClassVar[int]
+    MACROINVIDS_FIELD_NUMBER: _ClassVar[int]
     main: _oprc_object_pb2.ProtoPOObject
     output: _oprc_object_pb2.ProtoPOObject
     invId: str
@@ -112,7 +109,8 @@ class ProtoInvocationResponse(_message.Message):
     status: ProtoInvocationStatus
     stats: ProtoInvocationStats
     body: bytes
-    def __init__(self, main: _Optional[_Union[_oprc_object_pb2.ProtoPOObject, _Mapping]] = ..., output: _Optional[_Union[_oprc_object_pb2.ProtoPOObject, _Mapping]] = ..., invId: _Optional[str] = ..., fb: _Optional[str] = ..., macroIds: _Optional[_Mapping[str, str]] = ..., status: _Optional[_Union[ProtoInvocationStatus, str]] = ..., stats: _Optional[_Union[ProtoInvocationStats, _Mapping]] = ..., body: _Optional[bytes] = ..., **kwargs) -> None: ...
+    macroInvIds: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, main: _Optional[_Union[_oprc_object_pb2.ProtoPOObject, _Mapping]] = ..., output: _Optional[_Union[_oprc_object_pb2.ProtoPOObject, _Mapping]] = ..., invId: _Optional[str] = ..., fb: _Optional[str] = ..., macroIds: _Optional[_Mapping[str, str]] = ..., status: _Optional[_Union[ProtoInvocationStatus, str]] = ..., stats: _Optional[_Union[ProtoInvocationStats, _Mapping]] = ..., body: _Optional[bytes] = ..., macroInvIds: _Optional[_Iterable[str]] = ..., **kwargs) -> None: ...
 
 class ProtoInvocationStats(_message.Message):
     __slots__ = ("queTs", "smtTs", "cptTs")

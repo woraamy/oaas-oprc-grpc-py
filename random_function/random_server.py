@@ -62,7 +62,7 @@ async def serve():
     random_handler = RandomHandler()
     otask_servicer = OTaskExecutorServicer(random_handler)
 
-    oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(
+    oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(
         otask_servicer, server)
     listen_addr = "[::]:50052"
     server.add_insecure_port(listen_addr)
