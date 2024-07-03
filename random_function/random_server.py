@@ -15,9 +15,11 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
 
+
 def generate_text(num):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(num))
+
 
 class RandomHandler(oaas.Handler):
     # Generates a random record with the specified number of entries, keys, and values.
@@ -32,8 +34,8 @@ class RandomHandler(oaas.Handler):
         req_ts = int(ctx.args.get('reqts', '0'))
 
         # Copy a record from the main object if it exists
-        record = json.loads(ctx.task.main.data) if ctx.task.main.data is not None and len(ctx.task.main.data) != 0 else {}
-
+        record = json.loads(ctx.task.main.data) if ctx.task.main.data is not None and len(
+            ctx.task.main.data) != 0 else {}
 
         # Generate a random record
         for _ in range(entries):
@@ -49,9 +51,10 @@ class RandomHandler(oaas.Handler):
         if req_ts > 0:
             record['reqts'] = req_ts
         if inplace:
-            ctx.main_data = record
+            ctx.main_data = json.dumps(record).encode('utf-8')
         if ctx.task.output is not None:
             ctx.output_data = record
+
 
 class GrpcCtx:
     main_data = None
@@ -60,8 +63,7 @@ class GrpcCtx:
     def __init__(self, request):
         self.task = request
         self.args = request.args
-        
-  
+
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
     def __init__(self):
@@ -80,7 +82,7 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details('Handler not found')
             return oprc_offload_pb2.ProtoOTaskCompletion(id=request.id, success=False)
-        
+
         # Serialize the main and output objects to be bytes
         main_obj = json.dumps(ctx.main_data).encode('utf-8')
         if ctx.output_data is not None:
@@ -100,6 +102,7 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
     #     loop = asyncio.get_event_loop()
     #     return loop.run_until_complete(self.invoke(request, context))
 
+
 async def serve():
     server = grpc.aio.server()
     oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(OTaskExecutorServicer(), server)
@@ -108,6 +111,7 @@ async def serve():
     logging.info("Starting server on %s", listen_addr)
     await server.start()
     await server.wait_for_termination()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

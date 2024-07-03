@@ -37,30 +37,38 @@ def next_prime(p):
     return next_candidate
 
 
+class PrimeNumber:
+    def __init__(self):
+        self.prime = None
+
+    def update(self, prime):
+        self.prime = prime
+
+
 class GrpcCtx:
-    # main_data = 5
-    # output_data = main_data
+    main_data = None
 
     def __init__(self, request):
         self.task = request
         self.args = request.args
-        self.main_data = request.main.data
-        self.output_data = request.output.data
+        if self.main_data is None:
+            self.main_data = request.main.data
 
 
 class PrimeHandler:
     # User's handler to generate prime numbers
-    async def handle(self, ctx: GrpcCtx):
-        data_in_dict = json.loads(ctx.main_data.decode('utf-8'))
-        prev_prime = int(data_in_dict.get('PRIME', 5))
+    async def handle(self, ctx: GrpcCtx, number: PrimeNumber):
+        prev_prime = number.prime
         prime = next_prime(prev_prime)
+        number.update(prime)
         new_data = {'PRIME': prime}
         ctx.main_data = json.dumps(new_data).encode('utf-8')
 
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
-    def __init__(self, handler: PrimeHandler()):
+    def __init__(self, handler: PrimeHandler(), number: PrimeNumber()):
         self.prime_handler = handler
+        self.prime_number = number
 
     async def invoke(self, request, context):
         print("Received request")
@@ -73,23 +81,20 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
             return oprc_offload_pb2.ProtoOTaskCompletion(id=request.id, success=False)
 
         main_obj = json.dumps(ctx.main_data).encode('utf-8')
-        if ctx.output_data is not None:
-            output_obj = json.dumps(ctx.output_data).encode('utf-8')
-        else:
-            output_obj = b''
 
         return oprc_offload_pb2.ProtoOTaskCompletion(
             id=request.id,
             success=True,
-            main=oprc_offload_pb2.ProtoObjectUpdate(data=main_obj),
-            output=oprc_offload_pb2.ProtoObjectUpdate(data=output_obj)
+            main=oprc_offload_pb2.ProtoObjectUpdate(data=main_obj)
         )
 
 
 async def serve():
     server = grpc.aio.server()
     prime_handler = PrimeHandler()
-    oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(OTaskExecutorServicer(handler=prime_handler), server)
+    prime_number = PrimeNumber()
+    oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(OTaskExecutorServicer(handler=prime_handler,
+                                                                                    number=prime_number), server)
     listen_addr = "[::]:50051"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)

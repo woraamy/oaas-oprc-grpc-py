@@ -15,7 +15,6 @@ async def run():
         )
         response = await stub.invoke(request)
         print(response.main.data.decode('utf-8'))
-        print(response.output.data.decode('utf-8'))
 
 
 if __name__ == '__main__':
