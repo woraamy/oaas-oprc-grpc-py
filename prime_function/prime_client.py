@@ -6,15 +6,17 @@ import json
 
 
 async def run():
-    async with grpc.aio.insecure_channel("localhost:50051") as channel:
+    async with grpc.aio.insecure_channel("localhost:50052") as channel:
         stub = oprc_offload_pb2_grpc.OTaskExecutorStub(channel)
-        data = {'PRIME': 0}
+        data = {'PRIME': 5}
         request = oprc_offload_pb2.ProtoOTask(
             funcKey='example.prime.generate',
             main=oprc_object_pb2.ProtoOObject(data=json.dumps(data).encode('utf-8'))
         )
         response = await stub.invoke(request)
+        print(response)
         print(response.main.data.decode('utf-8'))
+        print(response.output.data.decode('utf-8'))
 
 
 if __name__ == '__main__':

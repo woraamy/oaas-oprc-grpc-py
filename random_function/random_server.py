@@ -34,7 +34,7 @@ class RandomHandler(oaas.Handler):
         req_ts = int(ctx.args.get('reqts', '0'))
 
         # Copy a record from the main object if it exists
-        record = json.loads(ctx.task.main.data).decode('utf-8') if ctx.task.main.data is not None and len(
+        record = json.loads(ctx.task.main.data) if ctx.task.main.data is not None and len(
             ctx.task.main.data) != 0 else {}
 
         # Generate a random record
@@ -51,9 +51,9 @@ class RandomHandler(oaas.Handler):
         if req_ts > 0:
             record['reqts'] = req_ts
         if inplace:
-            ctx.main_data = json.dumps(record).encode('utf-8')
+            ctx.main_data = record
         if ctx.task.output is not None:
-            ctx.output_data = json.dumps(record).encode('utf-8')
+            ctx.output_data = record
 
 
 class GrpcCtx:
@@ -106,7 +106,7 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.OTaskExecutorServicer):
 async def serve():
     server = grpc.aio.server()
     oprc_offload_pb2_grpc.add_OTaskExecutorServicer_to_server(OTaskExecutorServicer(), server)
-    listen_addr = "[::]:50051"
+    listen_addr = "[::]:50052"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
     await server.start()

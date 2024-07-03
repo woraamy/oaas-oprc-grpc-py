@@ -4,7 +4,7 @@ import asyncio
 import logging
 
 async def run():
-    async with grpc.aio.insecure_channel("localhost:50051") as channel:
+    async with grpc.aio.insecure_channel("localhost:50052") as channel:
         stub = oprc_offload_pb2_grpc.OTaskExecutorStub(channel)
         response = await stub.invoke(oprc_offload_pb2.ProtoOTask(funcKey='example.record.random'))
         print(response)
