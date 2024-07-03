@@ -8,7 +8,7 @@ import json
 async def run():
     async with grpc.aio.insecure_channel("localhost:50051") as channel:
         stub = oprc_offload_pb2_grpc.OTaskExecutorStub(channel)
-        data = {'PRIME': 5}
+        data = {'PRIME': 0}
         request = oprc_offload_pb2.ProtoOTask(
             funcKey='example.prime.generate',
             main=oprc_object_pb2.ProtoOObject(data=json.dumps(data).encode('utf-8'))

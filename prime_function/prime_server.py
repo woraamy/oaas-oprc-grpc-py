@@ -39,7 +39,7 @@ def next_prime(p):
 
 class PrimeNumber:
     def __init__(self):
-        self.prime = None
+        self.prime = 5
 
     def update(self, prime):
         self.prime = prime
