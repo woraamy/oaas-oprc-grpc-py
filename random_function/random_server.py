@@ -34,7 +34,7 @@ class RandomHandler(oaas.Handler):
         req_ts = int(ctx.args.get('reqts', '0'))
 
         # Copy a record from the main object if it exists
-        record = json.loads(ctx.task.main.data) if ctx.task.main.data is not None and len(
+        record = json.loads(ctx.task.main.data).decode('utf-8') if ctx.task.main.data is not None and len(
             ctx.task.main.data) != 0 else {}
 
         # Generate a random record
@@ -53,7 +53,7 @@ class RandomHandler(oaas.Handler):
         if inplace:
             ctx.main_data = json.dumps(record).encode('utf-8')
         if ctx.task.output is not None:
-            ctx.output_data = record
+            ctx.output_data = json.dumps(record).encode('utf-8')
 
 
 class GrpcCtx:
