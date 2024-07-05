@@ -11,7 +11,7 @@ async def run():
         data = {'PRIME': 5}
         request = oprc_offload_pb2.ProtoOTask(
             funcKey='example.prime.generate',
-            main=oprc_object_pb2.ProtoPOObject(data=json.dumps(data).encode('utf-8'))
+            main=oprc_object_pb2.ProtoPOObject(data=json.dumps(data).encode('utf-8')),
         )
         response = await stub.invoke(request)
         print(response)

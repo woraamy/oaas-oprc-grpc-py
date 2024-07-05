@@ -11,11 +11,13 @@ async def run():
         stub = oprc_offload_pb2_grpc.FunctionExecutorStub(channel)
         data = {"helllooo": "world"}
         request = oprc_offload_pb2.ProtoOTask(
-            funcKey='example.record.random',
+            funcKey='example.text.concat',
             main=oprc_object_pb2.ProtoPOObject(data=json.dumps(data).encode('utf-8'))
         )
         response = await stub.invoke(request)
         print(response)
+        print(response.main.data.decode('utf-8'))
+        print(response.output.data.decode('utf-8'))
 
 
 if __name__ == '__main__':

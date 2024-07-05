@@ -7,6 +7,7 @@ functions:
       knative:
         image: ghcr.io/hpcclab/oaas/concat-fn-py:latest
     config:
+      offloadingMode: GRPC
       custom:
         LOG_LEVEL: DEBUG
     variableDescriptions:

@@ -4,6 +4,7 @@ import time
 import asyncio
 
 import aiohttp
+import json
 import grpc
 from grpc import aio
 from concurrent import futures
@@ -11,7 +12,7 @@ from concurrent import futures
 from oaas_sdk_grpc.model import GrpcCtx, OTaskExecutorServicer
 from gen_grpc import oprc_offload_pb2_grpc
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 TEXT_KEY = os.getenv("TEXT_KEY", "text")
 level = logging.getLevelName(LOG_LEVEL)
 logging.basicConfig(level=level)
@@ -20,10 +21,11 @@ logging.basicConfig(level=level)
 class ConcatHandler:
     async def handle(self, ctx: GrpcCtx):
         append = ctx.args.get('APPEND', '')
-        inplace = ctx.task.output_obj is None or ctx.task.output_obj.id is None
+        inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
         req_ts = int(ctx.args.get('reqts', '0'))
 
-        record = ctx.task.main_obj.data.copy() if ctx.task.main_obj.data is not None else {}
+        record = json.loads(ctx.task.main.data) if ctx.task.main.data is not None and len(
+            ctx.task.main.data) != 0 else {}
 
         if req_ts != 0:
             record['reqts'] = req_ts
@@ -49,15 +51,17 @@ class ConcatHandler:
                 record['load'] = round(loading_time * 1000)
                 record['upload'] = round(uploading_time * 1000)
                 if inplace:
-                    ctx.task.main_obj.data = record
-                else:
-                    ctx.task.output_obj.data = record
+                    ctx.main_data = record
+                if ctx.task.output is not None:
+                    ctx.output_data = record
 
 
 async def serve():
     server = aio.server(futures.ThreadPoolExecutor(max_workers=10))
     concat_handler = ConcatHandler()
+    print("Handler created")
     otask_servicer = OTaskExecutorServicer(concat_handler)
+    print("Init servicer")
 
     oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(otask_servicer, server)
     listen_addr = "[::]:50052"
