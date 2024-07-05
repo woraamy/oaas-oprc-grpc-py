@@ -1,3 +1,5 @@
 oaas-sdk-py 
 grpcio
 grpcio-tools
+
+aiohttp~=3.9.5

@@ -1,0 +1,55 @@
+name: example
+functions:
+  - name: text.concat
+    type: TASK
+    outputCls: .text
+    provision:
+      knative:
+        image: ghcr.io/hpcclab/oaas/concat-fn-py:latest
+    config:
+      custom:
+        LOG_LEVEL: DEBUG
+    variableDescriptions:
+      - name: append
+  - name: chain-concat
+    type: MACRO
+    macro:
+      steps:
+        - target: '@'
+          as: record1
+          function: concat
+          args:
+            INPLACE: "false"
+        - target: record1
+          as: record2
+          function: json-update
+          args:
+            INPLACE: "false"
+        - target: record2
+          as: record3
+          function: concat
+          args:
+            INPLACE: "false"
+      output: record3
+classes:
+  - name: text
+    stateType: FILES
+    objectType: SIMPLE
+    stateSpec:
+      keySpecs:
+        - name: text
+    parents: ['builtin.base']
+    functions:
+      - access: PUBLIC
+        function: .text.concat
+        outputCls: .text
+        immutable: true
+      - access: PUBLIC
+        function: .text.concat
+        name: concat-inplace
+        outputCls: void
+        defaultArgs:
+          INPLACE: "true"
+
+
+
