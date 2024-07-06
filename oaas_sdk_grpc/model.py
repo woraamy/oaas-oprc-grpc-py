@@ -9,6 +9,9 @@ from aiohttp import ClientSession, ClientResponse
 from gen_grpc import oprc_offload_pb2_grpc, oprc_offload_pb2
 from oaas_sdk_py import OaasException
 
+from gen_grpc.oprc_object_pb2 import ProtoPOObject
+from gen_grpc.oprc_offload_pb2 import ProtoOTask
+
 
 async def _allocate(session: ClientSession,
                     url):
@@ -32,7 +35,7 @@ class GrpcCtx:
     allocate_url_dict = None
     allocate_main_url_dict = None
 
-    def __init__(self, request):
+    def __init__(self, request: ProtoOTask):
         self.task = request
         self.args = request.args
         if self.main_data is None:
@@ -40,9 +43,9 @@ class GrpcCtx:
 
     async def load_main_file(self, session: ClientSession, key: str) -> ClientResponse:
         """Load the file from the main object with the key"""
-        if key not in self.task.main_keys:
+        if key not in self.task.mainGetKeys:
             raise OaasException(f"NO such key '{key}' in main object")
-        return await _load_file(session, self.task.main_keys[key])
+        return await _load_file(session, self.task.mainGetKeys[key])
 
     async def upload_main_byte_data(self,
                                     session: ClientSession,
@@ -58,14 +61,14 @@ class GrpcCtx:
         resp = await session.put(url, data=data)
         if not resp.ok:
             raise OaasException("Got error when put the data to S3")
-        self.task.main_obj.updated_keys.append(key)
+        self.task.mainGetKeys.updated_keys.append(key)
 
     async def upload_byte_data(self,
                                session: ClientSession,
                                key: str,
                                data: bytes) -> None:
-        if key in self.task.output_keys:
-            url = self.task.output_keys[key]
+        if key in self.task.outputKeys:
+            url = self.task.outputKeys[key]
         elif self.allocate_url_dict is None:
             await self.allocate_file(session)
             url = self.allocate_url_dict[key]
@@ -90,7 +93,7 @@ class GrpcCtx:
 
     async def allocate_main_file(self,
                                  session: ClientSession) -> dict:
-        logging.debug(f"allocate_file for '{self.task.main_obj.id}'")
+        logging.debug(f"allocate_file for '{self.task.main.meta.id}'")
         resp_dict = await _allocate(session, self.task.alloc_main_url)
         if self.allocate_main_url_dict is None:
             self.allocate_main_url_dict = resp_dict
@@ -103,7 +106,7 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):
     def __init__(self, handler):
         self.handler = handler
 
-    async def invoke(self, request, context):
+    async def invoke(self, request: ProtoOTask, context):
         print("Received request")
         print(request)
         ctx = GrpcCtx(request)
