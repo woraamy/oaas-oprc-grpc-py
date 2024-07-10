@@ -34,13 +34,14 @@ class GrpcCtx:
     output_data = None
     # allocate_url_dict = None
     # allocate_main_url_dict = None
-    url_dict = None
 
     def __init__(self, request: ProtoOTask):
         self.task = request
         self.args = request.args
         if self.main_data is None:
             self.main_data = json.loads(request.main.data)
+        self.updated_main_keys = []
+        self.updated_output_keys = []
 
     async def load_main_file(self, session: ClientSession, key: str) -> ClientResponse:
         """Load the file from the main object with the key"""
@@ -58,13 +59,14 @@ class GrpcCtx:
         # else:
         #     url = self.allocate_url_dict[key]
         #
-        url = self.url_dict[key]
+        # url = self.url_dict[key]
+        url = self.task.mainPutKeys[key]
         if url is None:
             raise OaasException(f"The main object not accept '{key}' as key")
         resp = await session.put(url, data=data)
         if not resp.ok:
             raise OaasException("Got error when put the data to S3")
-        self.task.mainGetKeys.updated_keys.append(key)
+        self.updated_main_keys.append(key)
 
     async def upload_byte_data(self,
                                session: ClientSession,
@@ -82,7 +84,7 @@ class GrpcCtx:
         resp = await session.put(url, data=data)
         if not resp.ok:
             raise OaasException("Got error when put the data to S3")
-        self.task.output.updated_keys.append(key)
+        self.updated_output_keys.append(key)
 
     # async def allocate_file(self,
     #                         session: ClientSession) -> dict:
@@ -129,6 +131,8 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):
         return oprc_offload_pb2.ProtoOTaskCompletion(
             id=request.id,
             success=True,
-            main=oprc_offload_pb2.ProtoObjectUpdate(data=main_obj),
-            output=oprc_offload_pb2.ProtoObjectUpdate(data=output_obj)
+            main=oprc_offload_pb2.ProtoObjectUpdate(data=main_obj,
+                                                    updatedKeys=ctx.updated_main_keys),
+            output=oprc_offload_pb2.ProtoObjectUpdate(data=output_obj,
+                                                      updatedKeys=ctx.updated_output_keys)
         )

@@ -21,7 +21,7 @@ logging.basicConfig(level=level)
 class ConcatHandler:
     async def handle(self, ctx: GrpcCtx):
         append = ctx.args.get('APPEND', '')
-        inplace = ctx.args.get('INPLACE', 'true').lower() == 'true'
+        inplace = ctx.args.get('INPLACE', 'false').lower() == 'true'
         req_ts = int(ctx.args.get('reqts', '0'))
 
         record = json.loads(ctx.task.main.data) if ctx.task.main.data is not None and len(
