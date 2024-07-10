@@ -32,8 +32,9 @@ async def _load_file(session: ClientSession,
 class GrpcCtx:
     main_data = None
     output_data = None
-    allocate_url_dict = None
-    allocate_main_url_dict = None
+    # allocate_url_dict = None
+    # allocate_main_url_dict = None
+    url_dict = None
 
     def __init__(self, request: ProtoOTask):
         self.task = request
@@ -51,11 +52,13 @@ class GrpcCtx:
                                     session: ClientSession,
                                     key: str,
                                     data: bytes) -> None:
-        if self.allocate_main_url_dict is None:
-            await self.allocate_main_file(session)
-            url = self.allocate_main_url_dict[key]
-        else:
-            url = self.allocate_url_dict[key]
+        # if self.allocate_main_url_dict is None:
+        #     await self.allocate_main_file(session)
+        #     url = self.allocate_main_url_dict[key]
+        # else:
+        #     url = self.allocate_url_dict[key]
+        #
+        url = self.url_dict[key]
         if url is None:
             raise OaasException(f"The main object not accept '{key}' as key")
         resp = await session.put(url, data=data)
@@ -67,39 +70,39 @@ class GrpcCtx:
                                session: ClientSession,
                                key: str,
                                data: bytes) -> None:
-        if key in self.task.outputKeys:
-            url = self.task.outputKeys[key]
-        elif self.allocate_url_dict is None:
-            await self.allocate_file(session)
-            url = self.allocate_url_dict[key]
-        else:
-            url = self.allocate_url_dict[key]
+        # if key in self.task.outputKeys:
+        url = self.task.outputKeys[key]
+        # elif self.allocate_url_dict is None:
+        #     await self.allocate_file(session)
+        #     url = self.allocate_url_dict[key]
+        # else:
+        #     url = self.allocate_url_dict[key]
         if url is None:
             raise OaasException(f"The output object not accept '{key}' as key")
         resp = await session.put(url, data=data)
         if not resp.ok:
             raise OaasException("Got error when put the data to S3")
-        self.task.output_obj.updated_keys.append(key)
+        self.task.output.updated_keys.append(key)
 
-    async def allocate_file(self,
-                            session: ClientSession) -> dict:
-        logging.debug(f"allocate_file for '{self.task.output_obj.id}'")
-        resp_dict = await _allocate(session, self.task.alloc_url)
-        if self.allocate_url_dict is None:
-            self.allocate_url_dict = resp_dict
-        else:
-            self.allocate_url_dict = self.allocate_url_dict | resp_dict
-        return self.allocate_url_dict
-
-    async def allocate_main_file(self,
-                                 session: ClientSession) -> dict:
-        logging.debug(f"allocate_file for '{self.task.main.meta.id}'")
-        resp_dict = await _allocate(session, self.task.alloc_main_url)
-        if self.allocate_main_url_dict is None:
-            self.allocate_main_url_dict = resp_dict
-        else:
-            self.allocate_main_url_dict = self.allocate_main_url_dict | resp_dict
-        return self.allocate_main_url_dict
+    # async def allocate_file(self,
+    #                         session: ClientSession) -> dict:
+    #     logging.debug(f"allocate_file for '{self.task.output.id}'")
+    #     resp_dict = await _allocate(session, self.task.allocOutputUrl)
+    #     if self.allocate_url_dict is None:
+    #         self.allocate_url_dict = resp_dict
+    #     else:
+    #         self.allocate_url_dict = self.allocate_url_dict | resp_dict
+    #     return self.allocate_url_dict
+    #
+    # async def allocate_main_file(self,
+    #                              session: ClientSession) -> dict:
+    #     logging.debug(f"allocate_file for '{self.task.main.meta.id}'")
+    #     resp_dict = await _allocate(session, self.task.allocMainUrl)
+    #     if self.allocate_main_url_dict is None:
+    #         self.allocate_main_url_dict = resp_dict
+    #     else:
+    #         self.allocate_main_url_dict = self.allocate_main_url_dict | resp_dict
+    #     return self.allocate_main_url_dict
 
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):
