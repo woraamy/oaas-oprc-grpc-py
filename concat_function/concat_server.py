@@ -64,7 +64,7 @@ async def serve():
     print("Init servicer")
 
     oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(otask_servicer, server)
-    listen_addr = "[::]:50052"
+    listen_addr = "[::]:8080"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
     await server.start()
