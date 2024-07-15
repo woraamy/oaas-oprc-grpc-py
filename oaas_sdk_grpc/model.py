@@ -32,6 +32,7 @@ async def _load_file(session: ClientSession,
 class GrpcCtx:
     main_data = None
     output_data = None
+
     # allocate_url_dict = None
     # allocate_main_url_dict = None
 
@@ -136,3 +137,8 @@ class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):
             output=oprc_offload_pb2.ProtoObjectUpdate(data=output_obj,
                                                       updatedKeys=ctx.updated_output_keys)
         )
+
+
+class OffloadGrpc:
+    def __init__(self):
+        self.offload = oprc_offload_pb2_grpc

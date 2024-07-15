@@ -9,7 +9,7 @@ import grpc
 from grpc import aio
 from concurrent import futures
 
-from oaas_sdk_grpc.model import GrpcCtx, OTaskExecutorServicer
+from oaas_sdk_grpc.model import GrpcCtx, OTaskExecutorServicer, OffloadGrpc
 from gen_grpc import oprc_offload_pb2_grpc
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
@@ -57,13 +57,14 @@ class ConcatHandler:
 
 
 async def serve():
+    offload_grpc = OffloadGrpc()
     server = aio.server(futures.ThreadPoolExecutor(max_workers=10))
     concat_handler = ConcatHandler()
     print("Handler created")
     otask_servicer = OTaskExecutorServicer(concat_handler)
     print("Init servicer")
 
-    oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(otask_servicer, server)
+    offload_grpc.offload.add_FunctionExecutorServicer_to_server(otask_servicer, server)
     listen_addr = "[::]:8080"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)

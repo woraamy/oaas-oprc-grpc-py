@@ -9,7 +9,7 @@ import oaas_sdk_py as oaas
 from oaas_sdk_py import OaasInvocationCtx
 from gen_grpc import oprc_offload_pb2, oprc_offload_pb2_grpc
 import json
-from oaas_sdk_grpc.model import GrpcCtx
+from oaas_sdk_grpc.model import GrpcCtx, OffloadGrpc
 from oaas_sdk_grpc.model import OTaskExecutorServicer
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
@@ -58,11 +58,12 @@ class RandomHandler(oaas.Handler):
 
 
 async def serve():
+    offload_grpc = OffloadGrpc()
     server = grpc.aio.server()
     random_handler = RandomHandler()
     otask_servicer = OTaskExecutorServicer(random_handler)
 
-    oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(
+    offload_grpc.offload.add_FunctionExecutorServicer_to_server(
         otask_servicer, server)
     listen_addr = "[::]:50052"
     server.add_insecure_port(listen_addr)

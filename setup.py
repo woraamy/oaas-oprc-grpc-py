@@ -12,7 +12,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/woraamy/oaas-oprc-grpc-py",
-    packages=find_packages(include=["oaas_sdk_grpc", "oaas_sdk_grpc.*"]),
+    packages=find_packages(include=["oaas_sdk_grpc", "oaas_sdk_grpc.*", "gen_grpc", "gen_grpc.*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
