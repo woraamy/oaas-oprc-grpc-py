@@ -5,12 +5,10 @@ import asyncio
 
 import aiohttp
 import json
-import grpc
 from grpc import aio
 from concurrent import futures
 
 from oaas_sdk_grpc.model import GrpcCtx, OTaskExecutorServicer, OffloadGrpc
-from gen_grpc import oprc_offload_pb2_grpc
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 TEXT_KEY = os.getenv("TEXT_KEY", "text")

@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import gen_grpc.oprc_invoker_pb2 as oprc__invoker__pb2
+import oaas_sdk_grpc.gen_grpc.oprc_invoker_pb2 as oprc__invoker__pb2
 
 GRPC_GENERATED_VERSION = '1.64.1'
 GRPC_VERSION = grpc.__version__

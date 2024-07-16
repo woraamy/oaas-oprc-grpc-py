@@ -1,4 +1,4 @@
-import gen_grpc.oprc_object_pb2 as _oprc_object_pb2
+import oaas_sdk_grpc.gen_grpc.oprc_object_pb2 as _oprc_object_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor

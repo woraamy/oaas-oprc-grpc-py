@@ -1,5 +1,5 @@
-import gen_grpc.oprc_object_pb2 as _oprc_object_pb2
-import gen_grpc.oprc_invoker_pb2 as _oprc_invoker_pb2
+import oprc_object_pb2 as _oprc_object_pb2
+import oprc_invoker_pb2 as _oprc_invoker_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message

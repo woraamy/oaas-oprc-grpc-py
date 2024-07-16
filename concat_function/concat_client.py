@@ -1,7 +1,8 @@
 import json
 
 import grpc
-from gen_grpc import oprc_offload_pb2, oprc_offload_pb2_grpc, oprc_object_pb2
+from oaas_sdk_grpc.gen_grpc import oprc_offload_pb2, oprc_object_pb2
+from oaas_sdk_grpc.gen_grpc import oprc_offload_pb2_grpc
 import asyncio
 import logging
 

@@ -1,5 +1,6 @@
 include README.md
 include oaas_sdk_grpc/*.py
 recursive-include oaas_sdk_grpc *.py
-recursive-exclude gen_grpc *.py
+recursive-include gen_grpc *.py
+recursive-include gen_grpc *.pyi
 recursive-exclude other_files_and_dirs *

@@ -1,16 +1,13 @@
-import asyncio
 import grpc
-import logging
-import os
 import json
 
 from aiohttp import ClientSession, ClientResponse
 
-from gen_grpc import oprc_offload_pb2_grpc, oprc_offload_pb2
+from oaas_sdk_grpc.gen_grpc import oprc_offload_pb2
+from oaas_sdk_grpc.gen_grpc import oprc_offload_pb2_grpc
 from oaas_sdk_py import OaasException
 
-from gen_grpc.oprc_object_pb2 import ProtoPOObject
-from gen_grpc.oprc_offload_pb2 import ProtoOTask
+from oaas_sdk_grpc.gen_grpc.oprc_offload_pb2 import ProtoOTask
 
 
 async def _allocate(session: ClientSession,
@@ -33,9 +30,6 @@ class GrpcCtx:
     main_data = None
     output_data = None
 
-    # allocate_url_dict = None
-    # allocate_main_url_dict = None
-
     def __init__(self, request: ProtoOTask):
         self.task = request
         self.args = request.args
@@ -54,13 +48,7 @@ class GrpcCtx:
                                     session: ClientSession,
                                     key: str,
                                     data: bytes) -> None:
-        # if self.allocate_main_url_dict is None:
-        #     await self.allocate_main_file(session)
-        #     url = self.allocate_main_url_dict[key]
-        # else:
-        #     url = self.allocate_url_dict[key]
-        #
-        # url = self.url_dict[key]
+
         url = self.task.mainPutKeys[key]
         if url is None:
             raise OaasException(f"The main object not accept '{key}' as key")
@@ -73,39 +61,13 @@ class GrpcCtx:
                                session: ClientSession,
                                key: str,
                                data: bytes) -> None:
-        # if key in self.task.outputKeys:
         url = self.task.outputKeys[key]
-        # elif self.allocate_url_dict is None:
-        #     await self.allocate_file(session)
-        #     url = self.allocate_url_dict[key]
-        # else:
-        #     url = self.allocate_url_dict[key]
         if url is None:
             raise OaasException(f"The output object not accept '{key}' as key")
         resp = await session.put(url, data=data)
         if not resp.ok:
             raise OaasException("Got error when put the data to S3")
         self.updated_output_keys.append(key)
-
-    # async def allocate_file(self,
-    #                         session: ClientSession) -> dict:
-    #     logging.debug(f"allocate_file for '{self.task.output.id}'")
-    #     resp_dict = await _allocate(session, self.task.allocOutputUrl)
-    #     if self.allocate_url_dict is None:
-    #         self.allocate_url_dict = resp_dict
-    #     else:
-    #         self.allocate_url_dict = self.allocate_url_dict | resp_dict
-    #     return self.allocate_url_dict
-    #
-    # async def allocate_main_file(self,
-    #                              session: ClientSession) -> dict:
-    #     logging.debug(f"allocate_file for '{self.task.main.meta.id}'")
-    #     resp_dict = await _allocate(session, self.task.allocMainUrl)
-    #     if self.allocate_main_url_dict is None:
-    #         self.allocate_main_url_dict = resp_dict
-    #     else:
-    #         self.allocate_main_url_dict = self.allocate_main_url_dict | resp_dict
-    #     return self.allocate_main_url_dict
 
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):

@@ -6,8 +6,6 @@ import random
 import string
 import os
 import oaas_sdk_py as oaas
-from oaas_sdk_py import OaasInvocationCtx
-from gen_grpc import oprc_offload_pb2, oprc_offload_pb2_grpc
 import json
 from oaas_sdk_grpc.model import GrpcCtx, OffloadGrpc
 from oaas_sdk_grpc.model import OTaskExecutorServicer

@@ -1,13 +1,12 @@
 import asyncio
-import json
 import logging
 import os
 
 import grpc
 
-from gen_grpc import oprc_offload_pb2_grpc
 from oaas_sdk_grpc.model import GrpcCtx
-from oaas_sdk_grpc.model import OTaskExecutorServicer, OffloadGrpc
+from oaas_sdk_grpc.model import OTaskExecutorServicer
+from oaas_sdk_grpc.gen_grpc import oprc_offload_pb2_grpc
 
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
@@ -53,12 +52,12 @@ class PrimeHandler:
 
 
 async def serve():
-    offload_grpc = OffloadGrpc()
+
     server = grpc.aio.server()
     prime_handler = PrimeHandler()
     otask_servicer = OTaskExecutorServicer(prime_handler)
 
-    offload_grpc.offload.add_FunctionExecutorServicer_to_server(otask_servicer, server)
+    oprc_offload_pb2_grpc.add_FunctionExecutorServicer_to_server(otask_servicer, server)
     listen_addr = "[::]:50052"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
