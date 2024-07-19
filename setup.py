@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="oaas-sdk-grpc",
-    version="0.0.3",
+    version="0.0.5",
     author="Worawalan Chatlatanagulchai",
     author_email="worawalanc@gmail.com",
     description="GRPC SDK for OAAS",

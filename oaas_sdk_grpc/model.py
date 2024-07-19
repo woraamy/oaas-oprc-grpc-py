@@ -69,6 +69,13 @@ class GrpcCtx:
             raise OaasException("Got error when put the data to S3")
         self.updated_output_keys.append(key)
 
+    def copy_main_data(self):
+        if self.task.main.data is not None and len(self.task.main.data) != 0:
+            record = json.loads(self.task.main.data)
+        else:
+            record = {}
+        return record
+
 
 class OTaskExecutorServicer(oprc_offload_pb2_grpc.FunctionExecutorServicer):
     def __init__(self, handler):
